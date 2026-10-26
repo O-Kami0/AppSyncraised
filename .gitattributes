@@ -1,0 +1,8 @@
+# Shell scripts and plists shipped to iOS must keep LF endings -- CRLF breaks
+# /bin/sh parsing on the device (dash reports bogus syntax errors).
+*.sh    text eol=lf
+*.plist text eol=lf
+*.m     text eol=lf
+*.x     text eol=lf
+*.mk    text eol=lf
+Makefile text eol=lf

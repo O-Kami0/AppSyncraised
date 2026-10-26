@@ -1,11 +1,11 @@
 			<panel>
 				<label>118.0 (AppSyncraised): 2026/10/26</label>
 				<fieldset>
-					<div><label>This is a fork. AppSyncraised only relaxes the package metadata that upstream used to cap installation; no source code or dylib behaviour was changed. Source: <a href="https://github.com/O-Kami0/AppSyncraised" target="_blank">github.com/O-Kami0/AppSyncraised</a></label></div>
+					<div><label>This is a fork. AppSyncraised only relaxes the package metadata that upstream used to cap installation, plus the trust-cache fix described below. Source: <a href="https://github.com/O-Kami0/AppSyncraised" target="_blank">github.com/O-Kami0/AppSyncraised</a></label></div>
+					<div><label><strong>Fixed fakesigned apps being killed on launch on iOS 18 and later.</strong> AppSync Unified patched <code>installd</code> and FrontBoard but not the AMFI trust cache check that runs at <code>exec</code> time, so sideloaded apps installed successfully and then died with <code>SIGKILL</code> (exit 137 / “Killed: 9”). A new <code>asu-trustcache</code> helper now adds the cdhash of every Mach-O inside every installed app bundle (main binary, <code>Frameworks/*.framework</code>, <code>PlugIns/*.appex</code>, loose dylibs) to the jailbreak trust cache. It runs from <code>postinst</code> and from a LaunchDaemon at boot and every 30 minutes, so apps installed later are covered too. No-op on jailbreaks without <code>jbctl</code>.</label></div>
 					<div><label>Raised the supported firmware ceiling from iOS 18.2 to iOS 26.0.1. Support for iOS 18.3 through 26.0.1 is <strong>theoretical</strong> — the injection logic is unchanged and no iOS 19+ specific signature-check API changes are currently known, but those versions have not been verified.</label></div>
 					<div><label>iOS 18.7.1 is <strong>tested and confirmed working</strong> (rootless, palera1n).</label></div>
 					<div><label>Fixed the ElleKit conflict version syntax (<code>ellekit (&lt; 1.1)</code> → <code>ellekit (&lt;&lt; 1.1)</code>) so the dependency is actually enforced by dpkg.</label></div>
-					<div><label>No changes were made to AppSync Unified's functionality or code — this release only relaxes the package metadata that previously blocked installation on newer firmware.</label></div>
 				</fieldset>
 				<label>116.0: 2024/11/28</label>
 				<fieldset>

@@ -24,6 +24,9 @@
 #define ASU_INJECT_PLIST_PATH ROOT_PATH(L_LAUNCHDAEMON_PATH) "/ai.akemi.asu_inject.plist"
 #define ASU_INJECT_PLIST_PATH_OLD ROOT_PATH(L_LAUNCHDAEMON_PATH) "/net.angelxwind.asu_inject.plist"
 
+#define ASU_TRUSTCACHE_SCRIPT_PATH ROOT_PATH("/usr/local/bin/asu-trustcache.sh")
+#define ASU_TRUSTCACHE_PLIST_PATH ROOT_PATH(L_LAUNCHDAEMON_PATH) "/ai.akemi.asu_trustcache.plist"
+
 typedef struct __CFUserNotification *CFUserNotificationRef;
 FOUNDATION_EXTERN CFUserNotificationRef CFUserNotificationCreate(CFAllocatorRef allocator, CFTimeInterval timeout, CFOptionFlags flags, SInt32 *error, CFDictionaryRef dictionary);
 FOUNDATION_EXTERN SInt32 CFUserNotificationReceiveResponse(CFUserNotificationRef userNotification, CFTimeInterval timeout, CFOptionFlags *responseFlags);
@@ -57,6 +60,11 @@ int main(int argc, const char **argv) {
 			LOG("Running postinst…\n");
 		#else
 			LOG("Running prerm…\n");
+			// Stop the trust cache daemon before the package files disappear.
+			if (access(ASU_TRUSTCACHE_PLIST_PATH, F_OK) != -1) {
+				printf("Unloading the asu_trustcache LaunchDaemon…\n");
+				run_launchctl(ASU_TRUSTCACHE_PLIST_PATH, "unload", false);
+			}
 		#endif
 		printf("AppSync Unified\n");
 		printf("Copyright (C) 2014-2024 Karen/あけみ\n");
@@ -120,6 +128,34 @@ int main(int argc, const char **argv) {
 					printf("Removing the asu_inject LaunchDaemon…\n");
 					unlink(ASU_INJECT_PLIST_PATH);
 				}
+			}
+		#endif
+
+		#ifdef POSTINST
+			// iOS 18 and later validate every executable image against the AMFI
+			// trust cache before exec. AppSync's installd and FrontBoard hooks
+			// cover installation and trust evaluation, but not that check, so a
+			// fakesigned app installs and then dies with SIGKILL (exit 137).
+			//
+			// asu_trustcache adds the cdhash of every Mach-O in every installed
+			// app bundle to the jailbreak trust cache, which is what lets those
+			// apps actually launch. It is a no-op on jailbreaks without jbctl.
+			if (access(ASU_TRUSTCACHE_SCRIPT_PATH, X_OK) != -1) {
+				printf("Adding installed apps to the trust cache (required on iOS 18 and later)…\n");
+				chown(ASU_TRUSTCACHE_SCRIPT_PATH, 0, 0);
+				chmod(ASU_TRUSTCACHE_SCRIPT_PATH, 0755);
+				chown(ASU_TRUSTCACHE_PLIST_PATH, 0, 0);
+				chmod(ASU_TRUSTCACHE_PLIST_PATH, 0644);
+				const char *trustcacheArgs[] = { ASU_TRUSTCACHE_SCRIPT_PATH, NULL };
+				run_posix_spawn(trustcacheArgs);
+				// The daemon re-runs the scan at boot and periodically, so apps
+				// installed after AppSync Unified are covered too.
+				if (access(ASU_TRUSTCACHE_PLIST_PATH, F_OK) != -1) {
+					run_launchctl(ASU_TRUSTCACHE_PLIST_PATH, "unload", false);
+					run_launchctl(ASU_TRUSTCACHE_PLIST_PATH, "load", false);
+				}
+			} else {
+				printf("Trust cache helper not found; skipping.\n");
 			}
 		#endif
 

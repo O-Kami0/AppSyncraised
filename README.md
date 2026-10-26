@@ -17,12 +17,12 @@ Some popular use cases include:
 
 This is **AppSyncraised** (118.0), a fork of
 [AppSync Unified](https://github.com/akemin-dayo/AppSync) by Karen/あけみ.
-It only relaxes the package metadata that upstream used to cap installation.
-**No source code or dylib behaviour was changed.**
+It raises the firmware ceiling and adds a trust-cache fix for launching
+fakesigned apps on iOS 18+.
 
 | iOS version | Status |
 | --- | --- |
-| 5.0 – 18.2 | Supported upstream; unchanged |
+| 5.0 – 18.2 | Supported upstream |
 | 18.3 – 18.7.x | Works; **iOS 18.7.1 verified** on rootless (palera1n) with ElleKit 1.2 |
 | 18.8 – 26.0.1 | **Theoretical only** — installs and is expected to work, but untested |
 
@@ -32,6 +32,42 @@ The package identifier remains `ai.akemi.appsyncunified` and the version stays i
 upstream's numbering (`118.0`), so this build **upgrades** an existing AppSync
 Unified installation in place rather than installing alongside it. That is
 deliberate: two copies of the dylib hooking `installd` would conflict.
+
+### Why fakesigned apps still needed a fix on iOS 18
+
+AppSync Unified hooks two things:
+
+* `installd`'s `MISValidateSignatureAndCopyInfoWithProgress()` — lets an app **install**
+* FrontBoard's `trustStateForApplication:` (returns `8`) — marks it **trusted**
+
+Neither covers the check that actually happens at `exec` time on iOS 18+: AMFI
+validates every executable image against the **trust cache** before the process
+starts. A fakesigned binary that is not in the trust cache is `SIGKILL`ed
+(exit 137, “Killed: 9”) even though it installed fine and FrontBoard reports it
+as trusted. There is no crash report, because the process never spawns.
+
+This fork adds `asu-trustcache`, which walks every installed `.app` and adds the
+cdhash of every Mach-O it contains — main binary (resolved via
+`CFBundleExecutable`), `Frameworks/*.framework`, `PlugIns/*.appex`, and loose
+`.dylib`s — to the jailbreak trust cache. It runs from `postinst` and from a
+LaunchDaemon (`ai.akemi.asu_trustcache`) at boot and every 30 minutes, so apps
+installed *after* AppSync are covered too.
+
+Run it manually at any time:
+
+```sh
+asu-trustcache.sh                 # all installed apps
+asu-trustcache.sh /path/to/X.app  # one bundle
+```
+
+Results are appended to `/var/mobile/Documents/asu-trustcache.log`.
+
+**Limitation:** this only helps binaries whose signature block is otherwise
+acceptable — i.e. ad-hoc or distribution-signed dumps. An app whose main binary
+still carries the App Store DRM chain
+(`Authority=Apple iPhone OS Application Signing`) is rejected by AMFI
+independently of the trust cache and must be properly re-signed with a real
+certificate. Adding its cdhash will not help.
 
 ---
 
