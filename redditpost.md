@@ -8,14 +8,16 @@ Any support is _greatly_ appreciated, but donations are *not* and will *never* b
 
 ---
 
-# Changelog for 116.0 ([full changelog](https://cydia.akemi.ai/?page/ai.akemi.appsyncunified-changelog))
+# Changelog for 118.0 ([full changelog](https://cydia.akemi.ai/?page/ai.akemi.appsyncunified-changelog))
 
-* Added support for all iOS versions up to iOS 18.2.
-* No other changes were made to AppSync Unified's functionality or code.
+* Raised the supported firmware ceiling from iOS 18.2 to iOS 26.0.1. Support for iOS 18.3 through 26.0.1 is **theoretical** - the injection logic is unchanged and no iOS 19+ specific signature-check API changes are currently known, but those versions have not been verified.
+* iOS 18.7.1 is **tested and confirmed working** (rootless, palera1n).
+* Fixed the ElleKit conflict version syntax (`ellekit (< 1.1)` -> `ellekit (<< 1.1)`) so it is actually enforced by dpkg.
+* No changes were made to AppSync Unified's functionality or code - this release only relaxes the package metadata that previously blocked installation on newer firmware.
 
 ---
 
-# Unified AppSync dynamic library for iOS 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, and 18. Open-source on [GitHub](https://github.com/akemin-dayo/AppSync)!
+# Unified AppSync dynamic library for iOS 5 through iOS 18 (verified on iOS 18.7.x, metadata permits up to iOS 26.0.1). Open-source on [GitHub](https://github.com/akemin-dayo/AppSync)!
 
 AppSync Unified is a tweak that allows users to freely install ad-hoc signed, fakesigned, or unsigned IPA app packages on their iOS devices that iOS would otherwise consider invalid.
 

@@ -1,5 +1,5 @@
 # AppSync Unified
-###### Unified AppSync dynamic library for iOS 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, and 18.
+###### Unified AppSync dynamic library for iOS 5 through iOS 18. Verified working on iOS 18.7.1; package metadata permits up to iOS 26.0.1.
 
 ## What is AppSync Unified?
 
@@ -13,7 +13,19 @@ Some popular use cases include:
 
 ---
 
-## How do I install AppSync Unified on my jailbroken iOS device?
+## Compatibility
+
+This fork (118.0) only relaxes the package metadata that upstream used to cap installation. **No source code or dylib behaviour was changed.**
+
+| iOS version | Status |
+| --- | --- |
+| 5.0 – 18.2 | Supported upstream; unchanged |
+| 18.3 – 18.7.x | Works; **iOS 18.7.1 verified** on rootless (palera1n) with ElleKit 1.2 |
+| 18.8 – 26.0.1 | **Theoretical only** — installs and is expected to work, but untested |
+
+The `Depends` line is `firmware (>= 5.0), firmware (<< 26.0.2)`. If a future iOS release changes the `installd` signature-validation API that AppSync hooks (`MISValidateSignatureAndCopyInfoWithProgress`), the tweak will need real code changes — bumping this ceiling cannot predict that.
+
+---## How do I install AppSync Unified on my jailbroken iOS device?
 
 AppSync Unified is available from **Karen/あけみ's Repo: https://cydia.akemi.ai/** ([Tap here on your device to automatically add the repo!](https://cydia.akemi.ai/add.php))
 
