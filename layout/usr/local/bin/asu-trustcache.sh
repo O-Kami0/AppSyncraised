@@ -30,7 +30,16 @@ JBROOT="${JBROOT:-/var/jb}"
 PATH="$JBROOT/usr/bin:$JBROOT/usr/sbin:$JBROOT/bin:$JBROOT/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PATH
 
-LOG="${ASU_TRUSTCACHE_LOG:-${HOME:-/var/mobile}/Documents/asu-trustcache.log}"
+# Resolve the log path explicitly: postinst runs with HOME=/var/root, and the
+# LaunchDaemon with no HOME at all, so $HOME is not a reliable base.
+if [ -z "$ASU_TRUSTCACHE_LOG" ]; then
+    if [ -d /var/mobile/Documents ] && [ -w /var/mobile/Documents ]; then
+        ASU_TRUSTCACHE_LOG=/var/mobile/Documents/asu-trustcache.log
+    else
+        ASU_TRUSTCACHE_LOG=/tmp/asu-trustcache.log
+    fi
+fi
+LOG="$ASU_TRUSTCACHE_LOG"
 TMP="${TMPDIR:-/tmp}/.asu_tc_probe"
 
 ADDED=0
