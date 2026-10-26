@@ -1,8 +1,9 @@
-# Building a rootless (iphoneos-arm64) package with the raised ceiling
+# Building a rootless (iphoneos-arm64) package of AppSyncraised
 
-Upstream ships a single `control` file declaring `Architecture: iphoneos-arm`
-for both rootful and rootless builds — Theos rewrites the architecture for
-rootless packages, but it does **not** rewrite `Depends`.
+This fork (like upstream) ships a single `control` file declaring
+`Architecture: iphoneos-arm` for both rootful and rootless builds — Theos
+rewrites the architecture for rootless packages, but it does **not** rewrite
+`Depends`.
 
 This means the stock `control` also carries `firmware (>= 5.0)`, which is wrong
 for a rootless package and, per
@@ -53,3 +54,6 @@ Depends: firmware (>= 15.0), mobilesubstrate (>= 0.9.5100), firmware (<< 26.0.2)
 * If Theos' `THEOS_PACKAGE_SCHEME=rootless` support is in use, it will reject
   `Architecture: iphoneos-arm` mismatches — keep the two files in sync when
   bumping the version.
+* Repository: https://github.com/O-Kami0/AppSyncraised
+* Derived from upstream AppSync Unified by Karen/あけみ
+  (https://github.com/akemin-dayo/AppSync), GPLv3.

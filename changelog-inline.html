@@ -1,6 +1,7 @@
 			<panel>
-				<label>118.0: 2026/10/26</label>
+				<label>118.0 (AppSyncraised): 2026/10/26</label>
 				<fieldset>
+					<div><label>This is a fork. AppSyncraised only relaxes the package metadata that upstream used to cap installation; no source code or dylib behaviour was changed. Source: <a href="https://github.com/O-Kami0/AppSyncraised" target="_blank">github.com/O-Kami0/AppSyncraised</a></label></div>
 					<div><label>Raised the supported firmware ceiling from iOS 18.2 to iOS 26.0.1. Support for iOS 18.3 through 26.0.1 is <strong>theoretical</strong> — the injection logic is unchanged and no iOS 19+ specific signature-check API changes are currently known, but those versions have not been verified.</label></div>
 					<div><label>iOS 18.7.1 is <strong>tested and confirmed working</strong> (rootless, palera1n).</label></div>
 					<div><label>Fixed the ElleKit conflict version syntax (<code>ellekit (&lt; 1.1)</code> → <code>ellekit (&lt;&lt; 1.1)</code>) so the dependency is actually enforced by dpkg.</label></div>

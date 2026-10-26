@@ -1,5 +1,5 @@
-# AppSync Unified
-###### Unified AppSync dynamic library for iOS 5 through iOS 18. Verified working on iOS 18.7.1; package metadata permits up to iOS 26.0.1.
+# AppSyncraised
+###### A fork of AppSync Unified — the unified AppSync dynamic library for iOS 5 through iOS 18. Verified working on iOS 18.7.1; package metadata permits up to iOS 26.0.1.
 
 ## What is AppSync Unified?
 
@@ -15,7 +15,10 @@ Some popular use cases include:
 
 ## Compatibility
 
-This fork (118.0) only relaxes the package metadata that upstream used to cap installation. **No source code or dylib behaviour was changed.**
+This is **AppSyncraised** (118.0), a fork of
+[AppSync Unified](https://github.com/akemin-dayo/AppSync) by Karen/あけみ.
+It only relaxes the package metadata that upstream used to cap installation.
+**No source code or dylib behaviour was changed.**
 
 | iOS version | Status |
 | --- | --- |
@@ -25,13 +28,22 @@ This fork (118.0) only relaxes the package metadata that upstream used to cap in
 
 The `Depends` line is `firmware (>= 5.0), firmware (<< 26.0.2)`. If a future iOS release changes the `installd` signature-validation API that AppSync hooks (`MISValidateSignatureAndCopyInfoWithProgress`), the tweak will need real code changes — bumping this ceiling cannot predict that.
 
----## How do I install AppSync Unified on my jailbroken iOS device?
+The package identifier remains `ai.akemi.appsyncunified` and the version stays in
+upstream's numbering (`118.0`), so this build **upgrades** an existing AppSync
+Unified installation in place rather than installing alongside it. That is
+deliberate: two copies of the dylib hooking `installd` would conflict.
 
-AppSync Unified is available from **Karen/あけみ's Repo: https://cydia.akemi.ai/** ([Tap here on your device to automatically add the repo!](https://cydia.akemi.ai/add.php))
+---
 
-If you do not see AppSync Unified listed in Karen/あけみ's Repo, then that just means you have another repository added that is also hosting a copy of AppSync Unified under the same package ID.
+## How do I install AppSyncraised on my jailbroken iOS device?
 
-**_Please_ only ever install the official, unmodified release from Karen/あけみ's Repo for your own safety, and to ensure proper operation!** Third-party modified versions from other repositories can and _have_ broken various users' iOS installations in the past.
+Upstream AppSync Unified is distributed via **Karen/あけみ's Repo: https://cydia.akemi.ai/** ([Tap here on your device to automatically add the repo!](https://cydia.akemi.ai/add.php)) — however, that build still caps installation at iOS 18.2.
+
+This fork is **not** published to any APT repo. To install it on iOS > 18.2, build the `.deb` yourself (see [How do I build AppSyncraised?](#how-do-i-build-appsyncraised)) and install it with `dpkg -i`, or with a file manager such as Filza that can run `dpkg` as root.
+
+If your package manager already shows AppSync Unified, it just means you have a repository added that hosts a copy under the same package ID.
+
+**_Please_ only ever install builds you have built yourself or obtained from a source you trust.** Third-party modified versions from random repositories can and _have_ broken various users' iOS installations in the past.
 
 By installing third-party modified versions of _any system tweak_ like AppSync Unified, you are putting the security and stability of your iOS device and your personal data at risk.
 
@@ -41,15 +53,15 @@ By installing third-party modified versions of _any system tweak_ like AppSync U
 
 If AppSync Unified is not working after installation, please reboot your device or perform a userspace reboot (`launchctl reboot userspace`, `ldrestart`, etc.) to activate it. You will only need to do this ONCE.
 
-This issue appears to be caused by what …seems like a Cydia Substrate/Substitute bug(?) that's resurfaced from years ago, and occurs _really_ rarely, so it's an absolute nightmare of a bug. It's especially frustrating for me since I'm such a perfectionist when it comes to software development, too ww (🍍˃̶͈̀ロ˂̶͈́)੭ꠥ⁾⁾
+This issue appears to be caused by what …seems like a Cydia Substrate/Substitute bug(?) that's resurfaced from years ago, and occurs _really_ rarely, so it's an absolute nightmare of a bug.
 
 **For the curious developers among you:** AppSync Unified's `postinst` binary (see [pkg-actions.m](pkg-actions/pkg-actions.m)) restarts `installd` via `launchctl` — for some reason though, it seems like Cydia Substrate and/or Substitute doesn't always inject the dylib properly into `installd` when it is reloaded via `launchctl` in this way.
 
 I tried _really_ hard to determine the cause of this, but I really have no idea what could be causing this. The dylib has _long_ since been written to the filesystem by the time `postinst` was _executed_, let alone when `launchctl` was even called by `posix_spawn`.
 
-I guess for now, all I can do is inform people about the bug and how to resolve it. ⊂⌒~⊃｡Д｡🍍)⊃
+I guess for now, all I can do is inform people about the bug and how to resolve it.
 
-Hopefully I'll be able to properly resolve this in time.
+Hopefully this can be properly resolved upstream in time.
 
 ---
 
@@ -57,7 +69,7 @@ Hopefully I'll be able to properly resolve this in time.
 
 **Please do NOT use AppSync Unified for piracy.**
 
-AppSync Unified is a development tool designed for app developers first and foremost, alongside other valid legal uses that I support — a few of which are outlined above.
+AppSync Unified is a development tool designed for app developers first and foremost, alongside other valid legal uses.
 
 **Software piracy is illegal.** Please support the developers of the iOS software you use, whether they be app developers on the App Store or tweak developers on Chariz/Dynastic/etc.
 
@@ -65,30 +77,35 @@ They're just trying to make a living too, much like you and I.
 
 ---
 
-## How do I build AppSync Unified?
+## How do I build AppSyncraised?
 
 First, make sure you have [Theos](https://github.com/theos/theos) installed. If you don't, [please refer to the official documentation](https://theos.dev/docs/installation) on how to set up Theos on your operating system of choice.
 
 Once you've confirmed that you have Theos installed, open up Terminal and run the following commands:
 
 ```shell
-git clone https://github.com/akemin-dayo/AppSync.git
-cd AppSync/
-make
-make package
+git clone https://github.com/O-Kami0/AppSyncraised.git
+cd AppSyncraised/
+make package THEOS_PACKAGE_SCHEME=rootless
 ```
 
-And you should have a freshly built *.deb package file of AppSync Unified!
+And you should have a freshly built *.deb package file.
+
+The `THEOS_PACKAGE_SCHEME=rootless` argument produces an `iphoneos-arm64`
+package for rootless jailbreaks (Dopamine, palera1n, etc.). For a "rootful"
+package, omit it — but note only the rootless variant has been tested by this
+fork's maintainer. See [`contrib/README.md`](contrib/README.md) for the
+rootless-specific `Depends` caveat.
 
 ---
 
-## Do I need to do anything in order to use Xcode with AppSync Unified?
+## Do I need to do anything in order to use Xcode with AppSyncraised?
 
 No, not unless you're using Xcode 6 or below.
 
 As long as you're using a … _reasonably_ modern version of Xcode (7 or above, really), just use Xcode with your iOS device as you would normally!
 
-That being said, if for some reason you _are_ using Xcode 6 or below, please follow this old tutorial I wrote up all the way back in 2014: [Tutorial: How to use AppSync Unified for development with Xcode 6 or below](https://akemi.ai/?page/how2asu)
+That being said, if for some reason you _are_ using Xcode 6 or below, please follow this old tutorial written back in 2014: [Tutorial: How to use AppSync Unified for development with Xcode 6 or below](https://akemi.ai/?page/how2asu)
 
 ---
 
@@ -131,3 +148,9 @@ And that's about it! This explanation is obviously _incredibly_ simplified (the 
 ## License
 
 Licensed under [GPLv3](http://www.gnu.org/copyleft/gpl.html).
+
+AppSync Unified is Copyright (C) Karen/あけみ and contributors, and is
+distributed under the GPLv3. This fork is derived from
+[upstream AppSync](https://github.com/akemin-dayo/AppSync) and remains under the
+same licence. The upstream author does not maintain or endorse this fork;
+please do not report fork-specific problems upstream.

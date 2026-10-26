@@ -36,8 +36,8 @@ Locate the `libzip.a` file, and copy it to `$THEOS/libs/`.
 After you've done that, open up Terminal and run the following commands:
 
 ```shell
-git clone https://github.com/akemin-dayo/AppSync.git
-cd AppSync/appinst/
+git clone https://github.com/O-Kami0/AppSyncraised.git
+cd AppSyncraised/appinst/
 make
 make package
 ```
