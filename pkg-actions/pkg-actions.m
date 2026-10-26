@@ -18,14 +18,14 @@
 #define L_LAUNCHDAEMON_PATH "/Library/LaunchDaemons"
 #define SL_LAUNCHDAEMON_PATH "/System" L_LAUNCHDAEMON_PATH
 
-#define INSTALLD_PLIST_PATH_L ROOT_PATH(L_LAUNCHDAEMON_PATH) "/com.apple.mobile.installd.plist"
+#define INSTALLD_PLIST_PATH_L ROOT_PATH(L_LAUNCHDAEMON_PATH "/com.apple.mobile.installd.plist")
 #define INSTALLD_PLIST_PATH_SL SL_LAUNCHDAEMON_PATH "/com.apple.mobile.installd.plist"
 
-#define ASU_INJECT_PLIST_PATH ROOT_PATH(L_LAUNCHDAEMON_PATH) "/ai.akemi.asu_inject.plist"
-#define ASU_INJECT_PLIST_PATH_OLD ROOT_PATH(L_LAUNCHDAEMON_PATH) "/net.angelxwind.asu_inject.plist"
+#define ASU_INJECT_PLIST_PATH ROOT_PATH(L_LAUNCHDAEMON_PATH "/ai.akemi.asu_inject.plist")
+#define ASU_INJECT_PLIST_PATH_OLD ROOT_PATH(L_LAUNCHDAEMON_PATH "/net.angelxwind.asu_inject.plist")
 
 #define ASU_TRUSTCACHE_SCRIPT_PATH ROOT_PATH("/usr/local/bin/asu-trustcache.sh")
-#define ASU_TRUSTCACHE_PLIST_PATH ROOT_PATH(L_LAUNCHDAEMON_PATH) "/ai.akemi.asu_trustcache.plist"
+#define ASU_TRUSTCACHE_PLIST_PATH ROOT_PATH(L_LAUNCHDAEMON_PATH "/ai.akemi.asu_trustcache.plist")
 
 typedef struct __CFUserNotification *CFUserNotificationRef;
 FOUNDATION_EXTERN CFUserNotificationRef CFUserNotificationCreate(CFAllocatorRef allocator, CFTimeInterval timeout, CFOptionFlags flags, SInt32 *error, CFDictionaryRef dictionary);
