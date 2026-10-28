@@ -1,4 +1,11 @@
 			<panel>
+				<label>118.1 (AppSyncraised): 2026/10/28</label>
+				<fieldset>
+					<div><label><strong>Fixed the trust cache daemon dying silently after a reboot or reinstall.</strong> The LaunchDaemon executed the helper script directly, so when launchd could not exec it (not yet unpacked, or in an unexpected permission state) the job terminated with <code>EX_CONFIG</code> (exit 78) and never retried — leaving the trust cache unpopulated, which makes every sideloaded app fail to launch. The daemon now runs the script through <code>/bin/sh</code>, the same way <code>shshd</code> does, so the job always starts.</label></div>
+					<div><label>The helper now waits for <code>jbctl</code>'s trust cache to become available at boot (up to 30s) instead of failing once, and records why it skipped in the log.</label></div>
+					<div><label><code>postinst</code> now loads the daemon before the one-off scan, so the periodic scan stays scheduled even if the initial run is interrupted.</label></div>
+					<div><label>No dylib or hook behaviour changed in this release; it is entirely about making the trust-cache step reliable.</label></div>
+				</fieldset>
 				<label>118.0 (AppSyncraised): 2026/10/26</label>
 				<fieldset>
 					<div><label>This is a fork. AppSyncraised only relaxes the package metadata that upstream used to cap installation, plus the trust-cache fix described below. Source: <a href="https://github.com/O-Kami0/AppSyncraised" target="_blank">github.com/O-Kami0/AppSyncraised</a></label></div>

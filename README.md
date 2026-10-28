@@ -15,7 +15,7 @@ Some popular use cases include:
 
 ## Compatibility
 
-This is **AppSyncraised** (118.0), a fork of
+This is **AppSyncraised** (118.1), a fork of
 [AppSync Unified](https://github.com/akemin-dayo/AppSync) by Karen/あけみ.
 It raises the firmware ceiling and adds a trust-cache fix for launching
 fakesigned apps on iOS 18+.
@@ -61,6 +61,16 @@ asu-trustcache.sh /path/to/X.app  # one bundle
 ```
 
 Results are appended to `/var/mobile/Documents/asu-trustcache.log`.
+
+If apps that used to launch suddenly stop, check that log and `launchctl list | grep asu_trustcache`.
+A second column of `78` means the daemon failed to start and the cache has gone stale — reload it:
+
+```sh
+launchctl unload /var/jb/Library/LaunchDaemons/ai.akemi.asu_trustcache.plist
+launchctl load   /var/jb/Library/LaunchDaemons/ai.akemi.asu_trustcache.plist
+```
+
+(118.1 and later run the script through `/bin/sh`, which prevents that failure.)
 
 **Limitation:** this only helps binaries whose signature block is otherwise
 acceptable — i.e. ad-hoc or distribution-signed dumps. An app whose main binary

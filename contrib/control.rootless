@@ -7,7 +7,7 @@ Provides: appsync, net.angelxwind.appsyncunified
 Replaces: us.hackulo.appsync50, net.angelxwind.appsyncunified
 Package: ai.akemi.appsyncunified
 Name: AppSync Unified
-Version: 118.0
+Version: 118.1
 Architecture: iphoneos-arm64
 Description: Enables the ability to install unsigned/fakesigned iOS applications.
 Section: Tweaks

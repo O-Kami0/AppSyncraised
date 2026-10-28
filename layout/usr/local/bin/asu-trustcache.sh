@@ -52,12 +52,31 @@ log() {
 
 if ! command -v jbctl >/dev/null 2>&1; then
     echo "asu-trustcache: jbctl not found; nothing to do on this jailbreak." >&2
+    log "skipped: jbctl not found (not a Dopamine/roothide jailbreak?)"
     exit 0
 fi
 
 if ! command -v ldid >/dev/null 2>&1; then
     echo "asu-trustcache: ldid not found (install the ldid package)." >&2
+    log "ERROR: ldid not found"
     exit 1
+fi
+
+# At boot this job can start before the jailbreak root is mounted or before
+# jbctl's trust cache is initialised. Retry briefly instead of failing once and
+# leaving the cache empty until the next StartInterval tick.
+_ready=0
+for _i in 1 2 3 4 5 6 7 8 9 10; do
+    if jbctl trustcache info >/dev/null 2>&1; then
+        _ready=1
+        break
+    fi
+    sleep 3
+done
+if [ "$_ready" -eq 0 ]; then
+    echo "asu-trustcache: jbctl trustcache not ready yet; will retry on next interval." >&2
+    log "postponed: jbctl trustcache not ready after 30s"
+    exit 0
 fi
 
 # add_hashes <path-to-macho>

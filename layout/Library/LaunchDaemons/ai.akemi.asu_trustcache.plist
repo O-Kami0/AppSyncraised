@@ -4,8 +4,14 @@
 <dict>
 	<key>Label</key>
 	<string>ai.akemi.asu_trustcache</string>
+	<!-- Invoke through a shell rather than executing the script directly.
+	     If launchd cannot exec ProgramArguments[0] (missing, not yet unpacked,
+	     wrong permissions) the job dies with EX_CONFIG (exit 78) and never
+	     retries, which silently leaves the trust cache unpopulated after a
+	     reboot. /bin/sh always exists, so the job always starts. -->
 	<key>ProgramArguments</key>
 	<array>
+		<string>/bin/sh</string>
 		<string>/usr/local/bin/asu-trustcache.sh</string>
 	</array>
 	<key>RunAtLoad</key>
@@ -15,7 +21,7 @@
 	<key>ProcessType</key>
 	<string>Background</string>
 	<key>ThrottleInterval</key>
-	<integer>60</integer>
+	<integer>30</integer>
 	<key>StandardErrorPath</key>
 	<string>/dev/null</string>
 	<key>StandardOutPath</key>

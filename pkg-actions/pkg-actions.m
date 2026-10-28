@@ -146,14 +146,19 @@ int main(int argc, const char **argv) {
 				chmod(ASU_TRUSTCACHE_SCRIPT_PATH, 0755);
 				chown(ASU_TRUSTCACHE_PLIST_PATH, 0, 0);
 				chmod(ASU_TRUSTCACHE_PLIST_PATH, 0644);
-				const char *trustcacheArgs[] = { ASU_TRUSTCACHE_SCRIPT_PATH, NULL };
-				run_posix_spawn(trustcacheArgs);
-				// The daemon re-runs the scan at boot and periodically, so apps
-				// installed after AppSync Unified are covered too.
+
+				// Load the daemon FIRST, so the periodic scan is scheduled even if
+				// this one-off run below is interrupted.
 				if (access(ASU_TRUSTCACHE_PLIST_PATH, F_OK) != -1) {
 					run_launchctl(ASU_TRUSTCACHE_PLIST_PATH, "unload", false);
 					run_launchctl(ASU_TRUSTCACHE_PLIST_PATH, "load", false);
 				}
+
+				// Invoke through /bin/sh: execution is reliable even when the
+				// script's shebang interpreter or exec bits are in an unexpected
+				// state, which is what caused the daemon to die with exit 78.
+				const char *trustcacheArgs[] = { ROOT_PATH("/bin/sh"), ASU_TRUSTCACHE_SCRIPT_PATH, NULL };
+				run_posix_spawn(trustcacheArgs);
 			} else {
 				printf("Trust cache helper not found; skipping.\n");
 			}
