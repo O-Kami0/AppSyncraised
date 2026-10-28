@@ -4,15 +4,19 @@
 <dict>
 	<key>Label</key>
 	<string>ai.akemi.asu_trustcache</string>
-	<!-- Invoke through a shell rather than executing the script directly.
-	     If launchd cannot exec ProgramArguments[0] (missing, not yet unpacked,
-	     wrong permissions) the job dies with EX_CONFIG (exit 78) and never
-	     retries, which silently leaves the trust cache unpopulated after a
-	     reboot. /bin/sh always exists, so the job always starts. -->
+	<!-- Run the helper through the jailbreak's shell.
+	     Two things matter on a rootless jailbreak:
+	       1. /bin/sh does NOT exist (the root filesystem has no shell); the
+	          shell lives in the bootstrap at /var/jb/usr/bin/sh.
+	       2. The helper itself is only reachable as /var/jb/usr/local/bin/....
+	     launchd runs outside the jailbreak's prefix, so both paths must be the
+	     /var/jb-prefixed ones. Pointing at /bin/sh makes the job die with
+	     EX_CONFIG (exit 78) and it is never retried, which silently leaves the
+	     trust cache empty after a reboot. -->
 	<key>ProgramArguments</key>
 	<array>
-		<string>/bin/sh</string>
-		<string>/usr/local/bin/asu-trustcache.sh</string>
+		<string>/var/jb/usr/bin/sh</string>
+		<string>/var/jb/usr/local/bin/asu-trustcache.sh</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
