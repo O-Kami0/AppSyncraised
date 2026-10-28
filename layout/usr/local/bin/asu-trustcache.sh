@@ -45,6 +45,8 @@ TMP="${TMPDIR:-/tmp}/.asu_tc_probe"
 ADDED=0
 SEEN=0
 FAILED=0
+SKIPPED=0
+EXISTING="${TMPDIR:-/tmp}/.asu_tc_existing"
 
 log() {
     { echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >>"$LOG"; } 2>/dev/null
@@ -106,8 +108,16 @@ add_hashes() {
 
     for _h in $_hashes; do
         SEEN=$((SEEN + 1))
+        # jbctl appends without checking for duplicates, so re-running this
+        # script every 30 minutes would grow the trust cache forever. Skip
+        # hashes that are already present; load the existing set once.
+        if [ -f "$EXISTING" ] && grep -qi "$_h" "$EXISTING"; then
+            SKIPPED=$((SKIPPED + 1))
+            continue
+        fi
         if jbctl trustcache add "$_h" >/dev/null 2>&1; then
             ADDED=$((ADDED + 1))
+            printf '%s\n' "$_h" >>"$EXISTING" 2>/dev/null
         fi
     done
 }
@@ -151,6 +161,21 @@ scan_bundle() {
 
 log "=== asu-trustcache start ==="
 
+# Prevent overlapping runs (the daemon and a manual invocation can race, and
+# jbctl appends duplicates rather than deduplicating).
+LOCK="${TMPDIR:-/tmp}/.asu_tc_lock"
+if ! mkdir "$LOCK" 2>/dev/null; then
+    echo "asu-trustcache: another instance is running; exiting." >&2
+    log "skipped: another instance holds the lock"
+    exit 0
+fi
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
+
+# Snapshot the hashes already in the cache so re-runs are idempotent.
+rm -f "$EXISTING" 2>/dev/null
+jbctl trustcache info 2>/dev/null | grep -oE '[0-9A-Fa-f]{40,64}' | tr 'A-F' 'a-f' >"$EXISTING" 2>/dev/null
+log "existing entries: $(wc -l <"$EXISTING" 2>/dev/null || echo 0)"
+
 if [ -n "$1" ]; then
     if [ -d "$1" ]; then
         scan_bundle "$1"
@@ -165,8 +190,9 @@ else
     done
 fi
 
-log "attempted=$SEEN added=$ADDED unreadable=$FAILED"
+log "attempted=$SEEN added=$ADDED already-present=$SKIPPED unreadable=$FAILED"
 log "=== asu-trustcache done ==="
+rm -f "$EXISTING" 2>/dev/null
 
 # Keep the log from growing without bound on devices that never rotate it.
 if [ -f "$LOG" ]; then
